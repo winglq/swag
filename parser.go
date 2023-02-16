@@ -891,6 +891,28 @@ func (parser *Parser) ParseRouterAPIInfo(fileName string, astFile *ast.File) err
 	return nil
 }
 
+func (parser *Parser) ParseModels(fileName string, astFile *ast.File) error {
+	for _, astDescription := range astFile.Decls {
+		gd, ok := astDescription.(*ast.GenDecl)
+		if ok {
+			for _, spec := range gd.Specs {
+				if ts, ok := spec.(*ast.TypeSpec); ok {
+					_, err := parser.getTypeSchema(ts.Name.Name, astFile, true)
+					if err != nil {
+						return err
+					}
+
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (parser *Parser) PackagesDefinitions() *PackagesDefinitions {
+	return parser.packages
+}
+
 func refRouteMethodOp(item *spec.PathItem, method string) (op **spec.Operation) {
 	switch method {
 	case http.MethodGet:
